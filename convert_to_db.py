@@ -1,21 +1,31 @@
 import pandas as pd
 from sqlalchemy import create_engine
-import sqlite3
+import time
 
 
 def convert_to_db(path, table_name):
+    start_time = time.time()
     extension = path.split('.')[-1]
     try:
-        if extension == 'xlsx': # check if its a excel file
+        if extension == 'xlsx':  # checando se é um arquivo excel
+            print(f'Lendo {path}...')
             df = pd.read_excel(path)
-        #elif extension == 'mdb': # check if its a access file
-        #    data = 
+            print(f'Terminou de ler {path}!')
+        else:
+            print(f'{path} é de um formato inválido.')
+            return None
     except:
-        print(f'{path} is of invalid type.')
+        print(f'Erro ao ler {path}')
         return None
-    
-    engine = create_engine('sqlite:///C:/Users/vinic/Documents/mestrado-bi/database.db', echo=False) # creating a sql engine
-    df.to_sql(table_name, con = engine, if_exists = 'replace', index = False) # loading data in .db
-    
 
-convert_to_db('tabela.xlsx', 'tabela')
+    # criando uma engine de sql
+    engine = create_engine(
+        'sqlite:///C:/Users/vinic/Documents/mestrado-bi/database/database.db', echo=False)
+    print(f'Carregando {table_name} na base de dados...')
+    df.to_sql(table_name, con=engine, if_exists='replace',
+              index=False)  # carregando dados na .db
+    print(f'{table_name} foi carregado na base da dados.')
+    print(f'Levou {time.time() - start_time} segundos!')
+
+
+convert_to_db('database/tables/Município31.xlsx', 'Municipios31')

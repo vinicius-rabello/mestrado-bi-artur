@@ -2,3 +2,6 @@
 *.txt
 *.pbix
 *.db
+database
+access
+.ipynb_checkpoints
