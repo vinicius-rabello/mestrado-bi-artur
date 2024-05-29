@@ -28,4 +28,4 @@ def convert_to_db(path, table_name):
     print(f'Levou {time.time() - start_time} segundos!')
 
 
-convert_to_db('database/tables/Município31.xlsx', 'Municipios31')
+convert_to_db('database/tables/possiveis_matches.xlsx', 'PossiveisMatches')

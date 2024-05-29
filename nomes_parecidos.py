@@ -5,10 +5,10 @@ import difflib
 from tqdm import tqdm
 
 
-def padronizar_nomes(nome):
-    if nome:  # checando se o nome existe
+def padronizar(str):
+    if str:  # checando se o nome existe
         # usando regex para remover caracteres especiais
-        return re.sub(r'[^a-zA-Z]', '', nome)
+        return re.sub(r'[^a-zA-Z]', '', str.lower())
     else:
         return ''  # caso não exista retorna string vazia
 
@@ -19,15 +19,16 @@ cursor = connection.cursor()
 
 # pegando todos os nomes
 
-nomes_recibos = cursor.execute("SELECT DISTINCT Produtor FROM Recibos;").fetchall()
-nomes_censo = cursor.execute("SELECT DISTINCT Nome FROM Censo31;").fetchall()
+entradas_recibos = cursor.execute(
+    "SELECT DISTINCT Produtor, Município, Distrito, id FROM Recibos;").fetchall()
 
-# padronizando os nomes
+entradas_censo31 = cursor.execute(
+    "SELECT DISTINCT Nome, Município, Distrito, Ano, ID FROM Censo31;").fetchall()
 
-nomes_recibos = [padronizar_nomes(
-    nome[0]).lower() for nome in nomes_recibos]
-nomes_censo = [padronizar_nomes(
-    nome[0]).lower() for nome in nomes_censo]
+# entradas_censo38 = cursor.execute(
+#     "SELECT DISTINCT Nome, Município, Distrito, Ano FROM Censo38;").fetchall()
+
+# entradas_censos = [entradas_censo31, entradas_censo38]
 
 
 def comparar_nomes(nome1, nome2):
@@ -36,13 +37,50 @@ def comparar_nomes(nome1, nome2):
     return sim
 
 
-possiveis_matches = []
-for produtor in tqdm(nomes_recibos):
-    for nome in tqdm(nomes_censo):
-        # calcular a similaridade entre nomes
-        sim = comparar_nomes(produtor, nome)
-        if sim >= 0.7:
-            possiveis_matches.append([produtor, nome, sim])
+def gerar_possiveis_matches():
+    possiveis_matches = []
+    for entrada_recibo in tqdm(entradas_recibos):
+        match_id = 0
+        produtor = entrada_recibo[0]
+        municipio_recibo = entrada_recibo[1]
+        distrito_recibo = entrada_recibo[2]
+        id_recibo = entrada_recibo[3]
+        if not produtor:
+            continue
+        # for entradas_censo in entradas_censos:
+        for entrada_censo in tqdm(entradas_censo31):
+            nome = entrada_censo[0]
+            municipio_censo = entrada_censo[1]
+            distrito_censo = entrada_censo[2]
+            ano = '18' + str(entrada_censo[3])
+            id_censo = entrada_censo[4]
 
-df = pd.DataFrame(data = possiveis_matches, columns = ['Nome Recibos', 'Nome Censo', 'Semelhança'])
-df.to_excel('possiveis_matches.xlsx', index=False)
+            if not nome:
+                continue
+            # checando se distritos existem e são diferentes
+            if distrito_censo and distrito_recibo and distrito_censo != distrito_recibo:
+                continue
+            # checando se municípios existem e são diferentes
+            if municipio_censo and municipio_recibo and municipio_censo != municipio_recibo:
+                continue
+            # calcular a similaridade entre nomes
+            try:
+                sim = comparar_nomes(produtor, nome)
+            except:
+                print(f'Erro comparando nomes:\
+                      \n entrada_recibo = {entrada_recibo}\
+                      \n entrada_censo = {entrada_censo}\n')
+                continue
+            if sim >= 0.8:
+                possiveis_matches.append(
+                    [produtor, nome, municipio_censo, municipio_recibo,
+                     distrito_censo, distrito_recibo, match_id, ano, sim, id_recibo, id_censo])
+                match_id += 1
+
+    df = pd.DataFrame(data=possiveis_matches, columns=[
+        'NomeRecibos', 'NomeCenso', 'MunicipioRecibo', 'MunicipioCenso',
+        'DistritoRecibo', 'DistritoCenso', 'MatchId', 'Ano', 'Semelhanca', 'IdRecibo', 'IdCenso'])
+    df.to_excel('database/tables/possiveis_matches.xlsx', index=False)
+
+
+gerar_possiveis_matches()
