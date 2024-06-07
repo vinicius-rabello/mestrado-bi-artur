@@ -107,8 +107,6 @@ while i < n_entradas:
                     print('\nEscolha confirmada!\n')
 
                     # alterar na base de dados
-                    # print(cursor.execute(f"SELECT * FROM Recibos WHERE Produtor = '{
-                    #      entrada_recibo['NomeRecibos']}' AND id = '{entrada_recibo['IdRecibo']}';").fetchall())
 
                     connection.execute("BEGIN")
                     cursor.execute(f"UPDATE Recibos SET IdProdutor = {candidato['IdCenso']} WHERE Produtor = '{
