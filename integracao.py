@@ -1,5 +1,10 @@
 import pandas as pd
+import sqlite3
 import time
+
+# conectando na base de dados
+connection = sqlite3.connect('database/test.db')
+cursor = connection.cursor()
 
 # função para printar entrada do recibo
 
@@ -101,17 +106,30 @@ while i < n_entradas:
                     print('\n' + '='*148)
                     print('\nEscolha confirmada!\n')
 
+                    # alterar na base de dados
+                    # print(cursor.execute(f"SELECT * FROM Recibos WHERE Produtor = '{
+                    #      entrada_recibo['NomeRecibos']}' AND id = '{entrada_recibo['IdRecibo']}';").fetchall())
+
+                    connection.execute("BEGIN")
+                    cursor.execute(f"UPDATE Recibos SET IdProdutor = {candidato['IdCenso']} WHERE Produtor = '{
+                                   entrada_recibo["NomeRecibos"]}' AND id = '{entrada_recibo["IdRecibo"]}'")
+                    connection.commit()
+
+                    print('Alterações feitas!')
+
                     # logar mudança
 
                     with open(f'logs/{log_date}.txt', 'a') as f:
-                        f.write(f"{entrada_recibo['NomeRecibos']} | {entrada_recibo['IdRecibo']} ---> IdCenso: {candidato['IdCenso']} (Candidato {escolha})\n")
+                        f.write(f"{entrada_recibo['NomeRecibos']} | {
+                                entrada_recibo['IdRecibo']} ---> IdCenso: {candidato['IdCenso']} (Candidato {escolha})\n")
 
                     i += n_candidatos
                     escolhido = True
                 else:
                     mostrar_candidatos()
                     continue
-            except:
+            except Exception as e:
                 print('Valor inserido é inválido! Escolha novamente.')
+                print(e)
                 continue
     continue
