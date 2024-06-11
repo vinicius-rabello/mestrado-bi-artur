@@ -20,7 +20,7 @@ def convert_to_db(path, table_name):
 
     # criando uma engine de sql
     engine = create_engine(
-        'sqlite:///C:/Users/vinic/Documents/mestrado-bi/database/database.db', echo=False)
+        'sqlite:///C:/Users/vinic/Documents/mestrado-bi/database/test.db', echo=False)
     print(f'Carregando {table_name} na base de dados...')
     df.to_sql(table_name, con=engine, if_exists='replace',
               index=False)  # carregando dados na .db

@@ -9,9 +9,9 @@ cursor = connection.cursor()
 # função para printar entrada do recibo
 
 colunas_recibo = ['NomeRecibos', 'MunicipioRecibo',
-                  'DistritoRecibo', 'Ano', 'IdRecibo']
-colunas_censo = ['NomeCenso', 'MunicipioCenso',
-                 'DistritoCenso', 'Ano', 'Semelhanca', 'IdCenso']
+                  'DistritoRecibo', 'FreguesiaRecibo', 'AnoRecibo', 'IdRecibo']
+colunas_censo = ['NomeCenso', 'MunicipioCenso', 'DistritoCenso', 
+                 'AnoCenso', 'Semelhanca', 'IdCenso']
 
 # horario que começou a ser feita as mudanças para ser o nome do arquivo de log
 log_date = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
@@ -108,12 +108,12 @@ while i < n_entradas:
 
                     # alterar na base de dados
 
-                    connection.execute("BEGIN")
-                    cursor.execute(f"UPDATE Recibos SET IdProdutor = {candidato['IdCenso']} WHERE Produtor = '{
-                                   entrada_recibo["NomeRecibos"]}' AND id = '{entrada_recibo["IdRecibo"]}'")
-                    connection.commit()
+                    # connection.execute("BEGIN")
+                    # cursor.execute(f"UPDATE Recibos SET IdProdutor = {candidato['IdCenso']} WHERE Produtor = '{
+                    #                entrada_recibo["NomeRecibos"]}' AND id = '{entrada_recibo["IdRecibo"]}'")
+                    # connection.commit()
 
-                    print('Alterações feitas!')
+                    # print('Alterações feitas!')
 
                     # logar mudança
 
