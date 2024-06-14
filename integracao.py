@@ -10,7 +10,7 @@ cursor = connection.cursor()
 
 colunas_recibo = ['NomeRecibos', 'MunicipioRecibo',
                   'DistritoRecibo', 'FreguesiaRecibo', 'AnoRecibo', 'IdRecibo']
-colunas_censo = ['NomeCenso', 'MunicipioCenso', 'DistritoCenso', 
+colunas_censo = ['NomeCenso', 'MunicipioCenso', 'DistritoCenso',
                  'AnoCenso', 'Semelhanca', 'IdCenso']
 
 # horario que começou a ser feita as mudanças para ser o nome do arquivo de log
@@ -38,6 +38,20 @@ recibos_novo = recibos.copy()
 n_entradas = possiveis_matches.shape[0]
 
 i = 0
+
+# perguntar se quer pular correspondencias
+
+def pular_matches():
+    print('='*148)
+    escolha = input(
+        "\nVocê deseja pular as sugestões para matches com correspondências já existentes? Digite 'S' para sim ou 'N' para não: ").lower()
+    if escolha == 's':
+        return True
+    else:
+        return False
+
+pular_matches = pular_matches()
+
 # iteraremos sobre cada possível match
 while i < n_entradas:
     match = possiveis_matches.loc[i]  # pegando match
@@ -45,6 +59,13 @@ while i < n_entradas:
     # quantos elementos até próximo MatchId = 0
     # número de candidatos
     n_candidatos = list(possiveis_matches['MatchId'].loc[i+1:]).index(0) + 1
+
+    # pular matches já feitos
+    if pular_matches:
+        if match['ExisteCorrespondencia']:
+            i += n_candidatos
+            continue
+
     candidatos = possiveis_matches.loc[i: i + n_candidatos - 1]
 
     print('='*148)
@@ -108,12 +129,12 @@ while i < n_entradas:
 
                     # alterar na base de dados
 
-                    # connection.execute("BEGIN")
-                    # cursor.execute(f"UPDATE Recibos SET IdProdutor = {candidato['IdCenso']} WHERE Produtor = '{
-                    #                entrada_recibo["NomeRecibos"]}' AND id = '{entrada_recibo["IdRecibo"]}'")
-                    # connection.commit()
+                    connection.execute("BEGIN")
+                    cursor.execute(f"UPDATE Recibos SET IdProdutor = {candidato['IdCenso']} WHERE Produtor = '{
+                                   entrada_recibo["NomeRecibos"]}' AND id = '{entrada_recibo["IdRecibo"]}'")
+                    connection.commit()
 
-                    # print('Alterações feitas!')
+                    print('Alterações feitas!')
 
                     # logar mudança
 
@@ -126,8 +147,8 @@ while i < n_entradas:
                 else:
                     mostrar_candidatos()
                     continue
-            except Exception as e:
+            except Exception as err:
                 print('Valor inserido é inválido! Escolha novamente.')
-                print(e)
+                print(err)
                 continue
     continue
