@@ -9,7 +9,7 @@ cursor = connection.cursor()
 # função para printar entrada do recibo
 
 colunas_recibo = ['NomeRecibos', 'MunicipioRecibo',
-                  'DistritoRecibo', 'FreguesiaRecibo', 'AnoRecibo', 'IdRecibo']
+                  'FreguesiaRecibo', 'DistritoRecibo', 'LocalizacaoRecibo', 'AnoRecibo', 'IdRecibo']
 colunas_censo = ['NomeCenso', 'MunicipioCenso', 'DistritoCenso',
                  'AnoCenso', 'Semelhanca', 'IdCenso']
 
@@ -41,6 +41,7 @@ i = 0
 
 # perguntar se quer pular correspondencias
 
+
 def pular_matches():
     print('='*148)
     escolha = input(
@@ -49,6 +50,7 @@ def pular_matches():
         return True
     else:
         return False
+
 
 pular_matches = pular_matches()
 
@@ -62,9 +64,13 @@ while i < n_entradas:
 
     # pular matches já feitos
     if pular_matches:
-        if match['ExisteCorrespondencia']:
+        if match['ExisteCorrespondencia']:  # se já existe correspondencia, pule
             i += n_candidatos
             continue
+
+    if match['Descartado']:  # se match ja foi descartado anteriormente, pule
+        i += n_candidatos
+        continue
 
     candidatos = possiveis_matches.loc[i: i + n_candidatos - 1]
 
@@ -93,7 +99,7 @@ while i < n_entradas:
     escolhido = False
     while not escolhido:
         print('='*148)
-        print('\nDigite o número do candidato escolhido: (0 para não escolher nenhum)\n')
+        print('\nDigite o número do candidato escolhido: (0 para não escolher nenhum e 9 para descartar este produtor.)\n')
         escolha = input('')
         print('')
 
@@ -105,8 +111,25 @@ while i < n_entradas:
             continue
         # se 0 for escolhido continue para próximo nome
         if escolha == 0:
-            i += n_candidatos
+            i += n_candidatos  # proximo match
             escolhido = True
+        elif escolha == 9:
+            print('='*148)
+            print('\nTem certeza que quer descartar esse produtor?\n')
+            print('='*148)
+            confirmacao = input(
+                "\nDigite 'S' para sim ou 'N' para não: ").lower()
+            print('')
+            if confirmacao == 's':
+                # descarta esse match para proximos usos desse script
+                possiveis_matches.loc[i, 'Descartado'] = 1
+                possiveis_matches.to_excel(
+                    'database/tables/possiveis_matches.xlsx', index=False)  # atualizar na planilha
+                i += n_candidatos  # proximo match
+                escolhido = True
+            else:
+                mostrar_candidatos()
+                continue
         else:
             # checar se número escolhido é válido
             try:
@@ -152,3 +175,6 @@ while i < n_entradas:
                 print(err)
                 continue
     continue
+
+print('Você terminou.\n')
+print('='*148)

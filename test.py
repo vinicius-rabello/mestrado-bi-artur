@@ -1,3 +1,8 @@
 import pandas as pd
 
-print(pd.read_excel('database/tables/aaaaa.xlsx').shape)
+df = pd.read_excel('database/tables/Recibos.xlsx')
+try:
+    _ = df['Produtor']
+    print('wfsaomsa')
+except:
+    print(0)
