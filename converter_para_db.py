@@ -6,6 +6,7 @@ import time
 def convert_to_db(path, table_name):
     start_time = time.time()
     extension = path.split('.')[-1]
+    print(extension)
     try:
         if extension == 'xlsx':  # checando se é um arquivo excel
             print(f'Lendo {path}...')
@@ -28,4 +29,4 @@ def convert_to_db(path, table_name):
     print(f'Levou {time.time() - start_time} segundos!')
 
 
-convert_to_db('database/tables/possiveis_matches.xlsx', 'PossiveisMatches')
+convert_to_db('database/tables/Censo31_powerbi.xlsx', 'Censo31')
