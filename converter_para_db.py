@@ -29,4 +29,4 @@ def convert_to_db(path, table_name):
     print(f'Levou {time.time() - start_time} segundos!')
 
 
-convert_to_db('database/tables/Censo31_powerbi.xlsx', 'Censo31')
+convert_to_db('database/tables/possiveis_matches.xlsx', 'PossiveisMatchesTest')

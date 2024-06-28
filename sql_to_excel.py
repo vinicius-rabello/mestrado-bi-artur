@@ -12,5 +12,5 @@ def convert_to_excel(sheet_name, db_path, table_name):
     print(f'Levou {time.time() - start_time} segundos!')
 
 
-convert_to_excel('database/tables/Censo31_powerbi.xlsx',
-                 'database/test.db', 'Censo31')
+convert_to_excel('database/tables/Recibos.xlsx',
+                 'database/test.db', 'Recibos')

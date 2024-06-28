@@ -39,4 +39,12 @@ temp = pd.DataFrame(join_tables, columns=colunas +
                   ['Cod_condição', 'Condição2']) # juntandos as tabelas
 df['Condição'] = temp['Condição2'] # trocando os valores
 
+## trocando as condições
+join_tables = cursor.execute("SELECT * FROM Censo31 A \
+                              LEFT JOIN Ocupacao31 B \
+                              ON A.Condição = B.Cod_condição").fetchall()
+temp = pd.DataFrame(join_tables, columns=colunas +
+                  ['Cod_condição', 'Condição2']) # juntandos as tabelas
+df['Condição'] = temp['Condição2'] # trocando os valores
+
 df.to_excel('database/tables/Censo31_.xlsx', index = False) # salvando

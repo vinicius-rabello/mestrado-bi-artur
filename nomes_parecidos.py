@@ -74,7 +74,11 @@ def gerar_possiveis_matches():
                 continue
             # checando se municípios existem e são diferentes
             if municipio_censo and municipio_recibo and municipio_censo != municipio_recibo:
-                continue
+                # checando se os municipios diferentes são Diamantina e Serro
+                if set([municipio_censo, municipio_recibo]) == {'Diamantina', 'Serro'}:
+                    pass
+                else:
+                    continue
             # calcular a similaridade entre nomes
             try:
                 sim = comparar_nomes(produtor, nome)
