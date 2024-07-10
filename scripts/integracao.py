@@ -2,6 +2,9 @@ import pandas as pd
 import sqlite3
 import time
 
+# configurar pandas para printar todas as colunas
+pd.set_option('display.max_columns', None)
+
 # conectando na base de dados
 connection = sqlite3.connect('database/test.db')
 cursor = connection.cursor()
@@ -12,6 +15,9 @@ colunas_recibo = ['NomeRecibos', 'MunicipioRecibo',
                   'FreguesiaRecibo', 'DistritoRecibo', 'LocalizacaoRecibo', 'AnoRecibo', 'IdRecibo']
 colunas_censo = ['NomeCenso', 'MunicipioCenso', 'DistritoCenso',
                  'AnoCenso', 'Semelhanca', 'IdCenso']
+colunas_censo_total = ['ID', 'Dia', 'Mês', 'Ano', 'Município', 'Distrito', 'Quart', 'Fogo',
+                       'Folha', 'Pasta', 'Doc', 'Número', 'Relação', 'Sexo', 'Raça',
+                       'Condição', 'Idade', 'Est civil', 'Ocup', 'Nac', 'Nome']
 
 # horario que começou a ser feita as mudanças para ser o nome do arquivo de log
 log_date = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
@@ -28,9 +34,33 @@ def printar_candidato(entrada_candidato):
     for coluna, valor in zip(colunas_censo, entrada_candidato):
         print(f'{coluna}: {valor}')
 
+# query para pegar todos os moradores de uma casa
+
+
+def query_endereco(id):
+    endereco = cursor.execute(
+        f"SELECT Município, Distrito, Quart, Fogo FROM Censo31 WHERE Id = {id}").fetchall()
+    municipio = endereco[0][0]
+    distrito = endereco[0][1]
+    quart = endereco[0][2]
+    fogo = endereco[0][3]
+    endereco = cursor.execute(f"SELECT * FROM Censo31 \
+                     WHERE Município = '{municipio}' AND Distrito = '{distrito}' \
+                     AND Quart = '{quart}' AND Fogo = '{fogo}'").fetchall()
+    return endereco
+
+
+def printar_endereco(endereco):
+    moradores = []
+    for morador in endereco:
+        moradores.append(morador)
+    print(pd.DataFrame(data=moradores, columns=colunas_censo_total))
+    print('\n')
+
 
 # pegando as tabelas a serem usadas
-possiveis_matches = pd.read_excel('database/tables/possiveis_matches.xlsx')
+possiveis_matches = pd.read_excel(
+    'database/tables/possiveis_matches_09-07.xlsx')
 recibos = pd.read_excel('database/tables/Recibos.xlsx')
 recibos_novo = recibos.copy()
 
@@ -124,7 +154,7 @@ while i < n_entradas:
                 # descarta esse match para proximos usos desse script
                 possiveis_matches.loc[i, 'Descartado'] = 1
                 possiveis_matches.to_excel(
-                    'database/tables/possiveis_matches.xlsx', index=False)  # atualizar na planilha
+                    'database/tables/possiveis_matches_novo.xlsx', index=False)  # atualizar na planilha
                 i += n_candidatos  # proximo match
                 escolhido = True
             else:
@@ -134,8 +164,12 @@ while i < n_entradas:
             # checar se número escolhido é válido
             try:
                 # confirmar escolha
-                candidato = candidatos.loc[i + escolha - 1][colunas_censo]
-
+                try:
+                    candidato = candidatos.loc[i + escolha - 1][colunas_censo]
+                    endereco = query_endereco(candidato['IdCenso'])
+                except:
+                    pass
+                printar_endereco(endereco)
                 print('='*148)
                 print('Confirma essa mudança?')
                 print('='*148 + '\n\nRecibo: \n')

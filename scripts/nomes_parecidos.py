@@ -3,40 +3,34 @@ import sqlite3
 import difflib
 from tqdm import tqdm
 
-
-# def padronizar(str):
-#     if str:  # checando se o nome existe
-#         # usando regex para remover caracteres especiais
-#         return re.sub(r'[^a-zA-Z]', '', str.lower())
-#     else:
-#         return ''  # caso não exista retorna string vazia
-
-
-# conectando na base de dados
-connection = sqlite3.connect('database/test.db')
-cursor = connection.cursor()
-
-# pegando todos os nomes
-
-entradas_recibos = cursor.execute(
-    "SELECT DISTINCT Produtor, Município, Freguesia, Distrito, id, Data, IdProdutor, Localização FROM Recibos;").fetchall()
-
-entradas_censo31 = cursor.execute(
-    "SELECT DISTINCT Nome, Município, Distrito, Ano, ID FROM Censo31;").fetchall()
-
-# entradas_censo38 = cursor.execute(
-#     "SELECT DISTINCT Nome, Município, Distrito, Ano FROM Censo38;").fetchall()
-
-# entradas_censos = [entradas_censo31, entradas_censo38]
-
-
 def comparar_nomes(nome1, nome2):
     seq = difflib.SequenceMatcher(None, nome1, nome2)
     sim = seq.ratio()
     return sim
 
 
-def gerar_possiveis_matches():
+def gerar_possiveis_matches(path, arrecadadores=False, municipio=None):
+    # conectando na base de dados
+    connection = sqlite3.connect('database/test.db')
+    cursor = connection.cursor()
+
+    # pegando todos os nomes
+    if arrecadadores:
+        entradas_recibos = cursor.execute(
+            "SELECT DISTINCT Arrecadador, Município, Freguesia, Distrito, id, Data, IdProdutor, Localização FROM Recibos \
+             WHERE Arrecadador NOT NULL;").fetchall()
+    else:
+        if municipio:
+            entradas_recibos = cursor.execute(
+                f"SELECT DISTINCT Produtor, Município, Freguesia, Distrito, id, Data, IdProdutor, Localização FROM Recibos \
+                  WHERE Município = '{municipio}';").fetchall()
+        else:
+            entradas_recibos = cursor.execute(
+                f"SELECT DISTINCT Produtor, Município, Freguesia, Distrito, id, Data, IdProdutor, Localização FROM Recibos;").fetchall()
+
+    entradas_censo31 = cursor.execute(
+        "SELECT DISTINCT Nome, Município, Distrito, Ano, ID FROM Censo31;").fetchall()
+
     matches_df = []
     for entrada_recibo in tqdm(entradas_recibos):
         # checando se já existe algum match com o censo
@@ -69,13 +63,22 @@ def gerar_possiveis_matches():
 
             if not nome:
                 continue
-            # checando se distritos existem e são diferentes
-            if distrito_censo and distrito_recibo and distrito_censo != distrito_recibo:
-                continue
             # checando se municípios existem e são diferentes
             if municipio_censo and municipio_recibo and municipio_censo != municipio_recibo:
                 # checando se os municipios diferentes são Diamantina e Serro
-                if set([municipio_censo, municipio_recibo]) == {'Diamantina', 'Serro'}:
+                if set([municipio_censo, municipio_recibo]) == {'Serro', 'Diamantina'}:
+                    pass
+                # checando se os municipios diferentes são Vila do Príncipe e Serro
+                elif set([municipio_censo, municipio_recibo]) == {'Serro', 'Vila do Príncipe'}:
+                    pass
+                # checando se os municipios diferentes são Curvelo e Sabará
+                elif set([municipio_censo, municipio_recibo]) == {'Curvelo', 'Sabará'}:
+                    pass
+                # checando se os municipios diferentes são Baependi e Campanha
+                elif set([municipio_censo, municipio_recibo]) == {'Baependi', 'Campanha'}:
+                    pass
+                # checando se os municipios diferentes são Mariana e Caeté
+                elif set([municipio_censo, municipio_recibo]) == {'Mariana', 'Caeté'}:
                     pass
                 else:
                     continue
@@ -101,7 +104,7 @@ def gerar_possiveis_matches():
             len(possiveis_matches))]  # gerando os match ids
         matches_df.append(match_df)
     df = pd.concat(matches_df)
-    df.to_excel('database/tables/possiveis_matches.xlsx', index=False)
+    df.to_excel(path, index=False)
 
 
-gerar_possiveis_matches()
+gerar_possiveis_matches('database/tables/possiveis_matches_09-07.xlsx')
