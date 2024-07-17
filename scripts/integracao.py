@@ -59,8 +59,8 @@ def printar_endereco(endereco):
 
 
 # pegando as tabelas a serem usadas
-possiveis_matches = pd.read_excel(
-    'database/tables/possiveis_matches_09-07.xlsx')
+possiveis_matches_path = 'database/tables/possiveis_matches_09-07.xlsx'
+possiveis_matches = pd.read_excel(possiveis_matches_path)
 recibos = pd.read_excel('database/tables/Recibos.xlsx')
 recibos_novo = recibos.copy()
 
@@ -129,7 +129,7 @@ while i < n_entradas:
     escolhido = False
     while not escolhido:
         print('='*148)
-        print('\nDigite o número do candidato escolhido: (0 para não escolher nenhum e 9 para descartar este produtor.)\n')
+        print('\nDigite o número do candidato escolhido: (0 para não escolher nenhum e 999 para descartar este produtor.)\n')
         escolha = input('')
         print('')
 
@@ -143,7 +143,7 @@ while i < n_entradas:
         if escolha == 0:
             i += n_candidatos  # proximo match
             escolhido = True
-        elif escolha == 9:
+        elif escolha == 999:
             print('='*148)
             print('\nTem certeza que quer descartar esse produtor?\n')
             print('='*148)
@@ -154,7 +154,13 @@ while i < n_entradas:
                 # descarta esse match para proximos usos desse script
                 possiveis_matches.loc[i, 'Descartado'] = 1
                 possiveis_matches.to_excel(
-                    'database/tables/possiveis_matches_novo.xlsx', index=False)  # atualizar na planilha
+                    possiveis_matches_path, index=False)  # atualizar na planilha
+                
+                # logar descarte
+                with open(f'logs/{log_date}.txt', 'a') as f:
+                        f.write(f"{entrada_recibo['NomeRecibos']} | {
+                                entrada_recibo['IdRecibo']} DESCARTADO\n")
+
                 i += n_candidatos  # proximo match
                 escolhido = True
             else:
