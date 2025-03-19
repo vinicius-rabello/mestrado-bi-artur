@@ -15,9 +15,9 @@ colunas_recibo = ['NomeRecibos', 'MunicipioRecibo',
                   'FreguesiaRecibo', 'DistritoRecibo', 'LocalizacaoRecibo', 'AnoRecibo', 'IdRecibo']
 colunas_censo = ['NomeCenso', 'MunicipioCenso', 'DistritoCenso',
                  'AnoCenso', 'Semelhanca', 'IdCenso']
-colunas_censo_total = ['ID', 'Dia', 'Mês', 'Ano', 'Município', 'Distrito', 'Quart', 'Fogo',
-                       'Folha', 'Pasta', 'Doc', 'Número', 'Relação', 'Sexo', 'Raça',
-                       'Condição', 'Idade', 'Est civil', 'Ocup', 'Nac', 'Nome']
+colunas_censo_total = ['Dia', 'Mês', 'Ano', 'Pasta', 'Doc', 'Município', 'Distrito', 'Quart',
+                       'CodTipo', 'Id', 'Fogo', 'Número', 'Relação', 'Sexo', 'Raça',
+                       'Condição', 'Idade', 'Est civil', 'Alfab', 'Nac', 'Ocup', 'Nome', 'id']
 
 # horario que começou a ser feita as mudanças para ser o nome do arquivo de log
 log_date = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
@@ -39,12 +39,12 @@ def printar_candidato(entrada_candidato):
 
 def query_endereco(id):
     endereco = cursor.execute(
-        f"SELECT Município, Distrito, Quart, Fogo FROM Censo31 WHERE Id = {id}").fetchall()
+        f"SELECT Município, Distrito, Quart, Fogo FROM Censo38 WHERE Id = {id}").fetchall()
     municipio = endereco[0][0]
     distrito = endereco[0][1]
     quart = endereco[0][2]
     fogo = endereco[0][3]
-    endereco = cursor.execute(f"SELECT * FROM Censo31 \
+    endereco = cursor.execute(f"SELECT * FROM Censo38 \
                      WHERE Município = '{municipio}' AND Distrito = '{distrito}' \
                      AND Quart = '{quart}' AND Fogo = '{fogo}'").fetchall()
     return endereco
@@ -59,7 +59,7 @@ def printar_endereco(endereco):
 
 
 # pegando as tabelas a serem usadas
-possiveis_matches_path = 'database/tables/possiveis_matches_09-07.xlsx'
+possiveis_matches_path = 'database/tables/possiveis_matches_38________________.xlsx'
 possiveis_matches = pd.read_excel(possiveis_matches_path)
 recibos = pd.read_excel('database/tables/Recibos.xlsx')
 recibos_novo = recibos.copy()
@@ -67,7 +67,7 @@ recibos_novo = recibos.copy()
 # número de possíveis matches
 n_entradas = possiveis_matches.shape[0]
 
-i = 9344 # botar 10938 - numero q parou
+i = ########10162 - 2004 # botar 10162 - numero q parou
 
 # perguntar se quer pular correspondencias
 
@@ -193,7 +193,7 @@ while i < n_entradas:
                     # alterar na base de dados
 
                     connection.execute("BEGIN")
-                    cursor.execute(f"UPDATE Recibos SET IdProdutor = {candidato['IdCenso']} WHERE Produtor = '{
+                    cursor.execute(f"UPDATE Recibos SET IdArrecadador38 = {candidato['IdCenso']} WHERE Arrecadador = '{
                                    entrada_recibo["NomeRecibos"]}' AND id = '{entrada_recibo["IdRecibo"]}'")
                     connection.commit()
 

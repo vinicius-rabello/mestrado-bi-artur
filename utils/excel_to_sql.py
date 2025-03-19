@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 import time
 
 
-def convert_to_db(path, table_name):
+def convert_to_db(path, table_name):    
     start_time = time.time()
     extension = path.split('.')[-1]
     try:
@@ -28,4 +28,4 @@ def convert_to_db(path, table_name):
     print(f'Levou {time.time() - start_time} segundos!')
 
 
-convert_to_db('database/tables/possiveis_matches_09-07.xlsx', 'PossiveisMatches')
+convert_to_db('database/tables/censo38_corrigido.xlsx', 'Censo38')

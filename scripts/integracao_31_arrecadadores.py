@@ -12,7 +12,7 @@ cursor = connection.cursor()
 # função para printar entrada do recibo
 
 colunas_recibo = ['NomeRecibos', 'MunicipioRecibo',
-                  'FreguesiaRecibo', 'DistritoRecibo', 'LocalizacaoRecibo', 'AnoRecibo', 'IdRecibo']
+                  'FreguesiaRecibo', 'DistritoRecibo']
 colunas_censo = ['NomeCenso', 'MunicipioCenso', 'DistritoCenso',
                  'AnoCenso', 'Semelhanca', 'IdCenso']
 colunas_censo_total = ['ID', 'Dia', 'Mês', 'Ano', 'Município', 'Distrito', 'Quart', 'Fogo',
@@ -59,7 +59,7 @@ def printar_endereco(endereco):
 
 
 # pegando as tabelas a serem usadas
-possiveis_matches_path = 'database/tables/possiveis_matches_09-07.xlsx'
+possiveis_matches_path = 'database/tables/possiveis_matches_31_arrecadadores.xlsx'
 possiveis_matches = pd.read_excel(possiveis_matches_path)
 recibos = pd.read_excel('database/tables/Recibos.xlsx')
 recibos_novo = recibos.copy()
@@ -67,7 +67,7 @@ recibos_novo = recibos.copy()
 # número de possíveis matches
 n_entradas = possiveis_matches.shape[0]
 
-i = 9344 # botar 10938 - numero q parou
+i = 0
 
 # perguntar se quer pular correspondencias
 
@@ -155,11 +155,11 @@ while i < n_entradas:
                 possiveis_matches.loc[i, 'Descartado'] = 1
                 possiveis_matches.to_excel(
                     possiveis_matches_path, index=False)  # atualizar na planilha
-                
+
                 # logar descarte
                 with open(f'logs/{log_date}.txt', 'a') as f:
-                        f.write(f"{entrada_recibo['NomeRecibos']} | {
-                                entrada_recibo['IdRecibo']} DESCARTADO\n")
+                    f.write(f"{entrada_recibo['NomeRecibos']} | {
+                            entrada_recibo['IdRecibo']} DESCARTADO\n")
 
                 i += n_candidatos  # proximo match
                 escolhido = True
@@ -193,8 +193,8 @@ while i < n_entradas:
                     # alterar na base de dados
 
                     connection.execute("BEGIN")
-                    cursor.execute(f"UPDATE Recibos SET IdProdutor = {candidato['IdCenso']} WHERE Produtor = '{
-                                   entrada_recibo["NomeRecibos"]}' AND id = '{entrada_recibo["IdRecibo"]}'")
+                    cursor.execute(f"UPDATE Recibos SET IdArrecadador = {candidato['IdCenso']} WHERE Arrecadador = '{
+                                   entrada_recibo["NomeRecibos"]}'")
                     connection.commit()
 
                     print('Alterações feitas!')
@@ -203,7 +203,7 @@ while i < n_entradas:
 
                     with open(f'logs/{log_date}.txt', 'a') as f:
                         f.write(f"{entrada_recibo['NomeRecibos']} | {
-                                entrada_recibo['IdRecibo']} ---> IdCenso: {candidato['IdCenso']} (Candidato {escolha})\n")
+                                entrada_recibo['MunicipioRecibo']} ---> IdCenso: {candidato['IdCenso']} (Candidato {escolha})\n")
 
                     i += n_candidatos
                     escolhido = True

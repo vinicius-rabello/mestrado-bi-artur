@@ -3,8 +3,8 @@ import sqlite3
 
 conn = sqlite3.connect('database/test.db')
 # pegando a coluna IdProdutor da base de dados
-coluna_id_produtor = pd.read_sql(f'SELECT IdProdutor FROM Recibos', conn)[
-    'IdProdutor'].tolist()
+coluna_id_produtor = pd.read_sql(f'SELECT IdProdutor31 FROM Recibos', conn)[
+    'IdProdutor31'].tolist()
 # lendo a planilha recibos
 recibos = pd.read_excel('database/tables/Recibos.xlsx')
 
